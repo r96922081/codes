@@ -103,19 +103,8 @@ _start:
 
 
   push dword input
-  call print_addr
-
-  push dword input + 4
-  call print_addr
-
-  push dword input + 8
-  call print_addr
-
-  push dword input + 12
-  call print_addr
-
-  push dword input + 16
-  call print_addr
+  push 5
+  call print_addr_count
 
   mov eax, 1
   int 0x80   ; call kernel

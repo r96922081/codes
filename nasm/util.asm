@@ -7,9 +7,9 @@ section .data
   print_value_new_line_proc_buf dd 0
   print_value_new_line_proc_temp: times 4 dd 0
   print_addr_proc_temp: times 4 dd 0
+  print_addr_count_proc_temp: times 4 dd 0
   temp_string dd ' '
-  temp_buf dd 0
-
+  temp_buf : times 2 dd 0
 
 print_string:
   ; [string, len, ret]
@@ -36,6 +36,34 @@ print_string:
   pop eax
 
   ret
+
+print_addr_count:
+  ; [addr, count, ret]
+  mov [print_addr_count_proc_temp], eax
+  mov [print_addr_count_proc_temp + 4], ebx
+  mov [print_addr_count_proc_temp + 8], ecx
+  mov [print_addr_count_proc_temp + 12], edx
+
+  pop ebx; ret
+  pop ecx; count
+  pop eax; addr
+  push ebx
+
+  print_addr_count_loop:
+    push eax
+    call print_addr
+    add eax, 4
+    dec ecx
+    cmp ecx, 0    
+    jne print_addr_count_loop
+
+  mov eax, [print_addr_count_proc_temp]
+  mov ebx, [print_addr_count_proc_temp + 4]
+  mov ecx, [print_addr_count_proc_temp + 8]
+  mov edx, [print_addr_count_proc_temp + 12]
+
+  ret
+
 
 print_addr:
   ; [addr, ret]
@@ -298,4 +326,10 @@ _demo:
   push temp_buf
   call print_addr
  
-  ret 
+  mov dword [temp_buf + 4], 0x11112222
+  push temp_buf
+  push 2
+  call print_addr_count
+ 
+  mov eax, 1
+  int 0x80   ; call kernel
